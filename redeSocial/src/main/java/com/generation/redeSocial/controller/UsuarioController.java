@@ -1,6 +1,8 @@
 package com.generation.redeSocial.controller;
 
 import java.util.List;
+import java.util.Optional;
+
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,8 +17,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.generation.redeSocial.model.UserLogin;
 import com.generation.redeSocial.model.Usuario;
 import com.generation.redeSocial.repository.UsuarioRepository;
+import com.generation.redeSocial.service.UsuarioService;
 
 @RestController
 @RequestMapping("/usuario")
@@ -25,6 +29,9 @@ public class UsuarioController {
 	
 	@Autowired
 	private UsuarioRepository repository;
+	
+	@Autowired
+	private UsuarioService usuarioService;
 	
 	@GetMapping
 	private ResponseEntity<List<Usuario>> getAll(){
@@ -51,4 +58,18 @@ public class UsuarioController {
 	public void delete(@PathVariable long id) {
 		repository.deleteById(id);
 	}
+	
+
+	@PostMapping("/logar")
+	public ResponseEntity<UserLogin> Autentication(@RequestBody Optional<UserLogin> user) {
+		return usuarioService.logar(user).map(resp -> ResponseEntity.ok(resp))
+				.orElse(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
+	}
+	
+	@PostMapping("/cadastrar")
+	public ResponseEntity<Usuario>	Post(@RequestBody Usuario usuario){
+		return ResponseEntity.status(HttpStatus.CREATED)
+				.body(usuarioService.cadastrarUsuario(usuario));
+	}
 }
+
